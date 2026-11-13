@@ -1,2 +1,3 @@
 node_modules
+!public/assets/node_modules/
 .env
