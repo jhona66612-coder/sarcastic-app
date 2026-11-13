@@ -1,4 +1,5 @@
 node_modules/
+!backend/public/assets/node_modules/
 .expo/
 dist/
 .env
