@@ -1,4 +1,4 @@
-# RoastProductivity · ToxicApp
+# ToxicApp
 
 Abre la [aplicación compartida](https://sarcastic-api.onrender.com) desde el teléfono o el navegador. Crea una cuenta o entra con tu correo o usuario. Los cambios pasan por la [API de Render](https://sarcastic-api.onrender.com/api/v1/health) y se guardan en el proyecto Supabase `sarcastic-dev`.
 
