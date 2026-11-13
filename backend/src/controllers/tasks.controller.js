@@ -73,7 +73,7 @@ exports.update = async (req, res) => {
               description = coalesce($4, description),
               category_id = coalesce($5, category_id),
               priority = coalesce($6, priority),
-              deadline = coalesce($7, deadline),
+              deadline = case when $10 then $7::date else deadline end,
               estimated_duration = coalesce($8, estimated_duration),
               alternative_plan = coalesce($9, alternative_plan)
         where id = $1 and user_id = $2
@@ -81,6 +81,7 @@ exports.update = async (req, res) => {
       [
         req.params.id, req.user.id, b.title, b.description, b.category_id,
         b.priority, b.deadline, b.estimated_duration, b.alternative_plan,
+        Object.prototype.hasOwnProperty.call(b, 'deadline'),
       ]
     );
     if (!r.rowCount) throw new HttpError(404, 'Tarea no encontrada');
