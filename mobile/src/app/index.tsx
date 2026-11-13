@@ -1,109 +1,49 @@
 import { useState } from 'react';
-import { Button, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
-
-const api = process.env.EXPO_PUBLIC_API_URL?.trim().replace(/\/+$/, '');
-
-async function solicitar(ruta: string, opciones: RequestInit = {}) {
-  if (!api) throw new Error('Configura EXPO_PUBLIC_API_URL en mobile/.env y recarga la app.');
-  const respuesta = await fetch(api + ruta, opciones);
-  const datos = await respuesta.json();
-  if (!respuesta.ok) throw new Error(datos.error || 'Error HTTP ' + respuesta.status);
-  return datos;
+import { Redirect, type Href } from 'expo-router';
+import { View } from 'react-native';
+import { request, type User } from '../lib/api';
+import { useSession } from '../lib/session';
+import { useAction } from '../lib/data';
+import { Button, Card, c, Field, Icon, Label, Loading, Notice, Page, Row, Tag } from '../ui/kit';
+const benefits = [
+  ['robot-outline', 'IA tóxica con cero empatía', 'SlothBot examina tus excusas y te ayuda a empezar.'],
+  ['qrcode-scan', 'Alarma QR', 'Escanea tu código para registrar que te levantaste.'],
+  ['sword-cross', 'Duelos de productividad', 'Reta a tus amigos y compara su progreso.'],
+] as const;
+export default function Welcome() {
+  const {session,enter,loading,error,retry} = useSession();
+  const [mode,setMode] = useState<'welcome'|'login'|'register'>('welcome');
+  const [name,setName] = useState(''), [username,setUsername] = useState(''), [email,setEmail] = useState(''), [password,setPassword] = useState('');
+  const action = useAction();
+  if (loading) return <Loading/>;
+  if (error) return <Page title="Sesión" header={false}><Notice error={error} retry={retry}/></Page>;
+  if (session) return <Redirect href={'/inicio' as Href}/>;
+  const register = mode==='register';
+  const submit = () => action.run(async () => {
+    const body = register ? {name:name.trim(), username:username.trim(), email:email.trim(), password} : {email:email.trim(),password};
+    const s = await request<{token:string;user:User}>('/auth/'+(register?'register':'login'),'', 'POST',body);
+    await enter(s); setPassword('');
+  });
+  return <Page title="Bienvenida" header={false}>
+    <Tag tone={c.rose} color={c.red}>⚠ ADVERTENCIA · DAÑO AL EGO REVERSIBLE</Tag>
+    <Card tone={c.lavender} style={{alignItems:'center',paddingVertical:24}}>
+      <View style={{width:78,height:78,borderRadius:40,backgroundColor:c.dark,alignItems:'center',justifyContent:'center'}}><Label size={45}>🦥</Label></View>
+      <Tag tone={c.dark} color={c.lime}>SLOTHBOT · 0% PIEDAD</Tag>
+      <Label size={13}>Tu peor pesadilla con una lista de pendientes.</Label>
+    </Card>
+    {mode==='welcome'?<>
+      <View><Label size={31} bold>Deja de mentirte.</Label><Label size={31} color={c.purple} bold>Sé productivo a la fuerza.</Label></View>
+      <Label color={c.muted}>La única app de productividad que destruye tus excusas y expone tus trampas con sarcasmo.</Label>
+      <Card>{benefits.map(([icon,title,description],i)=><Row key={title}><View style={{backgroundColor:[c.dark,c.lavender,c.lime][i],padding:9,borderRadius:9}}><Icon name={icon} color={i===0?'white':c.ink}/></View><View style={{flex:1}}><Label bold>{title}</Label><Label size={12} color={c.muted}>{description}</Label></View></Row>)}</Card>
+      <Button onPress={()=>setMode('register')}>Aceptar el castigo (Empezar) ⚡</Button>
+      <Button variant="quiet" onPress={()=>setMode('login')}>Ya tengo cuenta y pocas esperanzas</Button>
+    </>:<Card><Label size={23} bold>{register?'Crear mi cuenta':'Iniciar sesión'}</Label>
+      {register&&<><Field label="Nombre" value={name} onChangeText={setName}/><Field label="Nombre de usuario" autoCapitalize="none" value={username} onChangeText={setUsername}/></>}
+      <Field label={register?'Correo electrónico':'Correo o nombre de usuario'} autoCapitalize="none" autoCorrect={false} keyboardType={register?'email-address':'default'} value={email} onChangeText={setEmail}/>
+      <Field label="Contraseña" secureTextEntry value={password} onChangeText={setPassword} onSubmitEditing={()=>{if(email.trim()&&password&&(!register||(name.trim()&&username.trim()&&password.length>=6)))void submit();}}/>
+      {register&&<Label size={12} color={c.muted}>Usa al menos 6 caracteres.</Label>}
+      <Notice error={action.error}/><Button disabled={action.busy||!email.trim()||!password||(register&&(!name.trim()||!username.trim()||password.length<6))} onPress={submit}>{action.busy?'Conectando…':register?'Registrarme':'Entrar'}</Button>
+      <Button variant="quiet" onPress={()=>setMode('welcome')}>Volver</Button>
+    </Card>}
+  </Page>;
 }
-
-type Tarea = { id: string; title: string };
-
-export default function Conexion() {
-  const [correo, setCorreo] = useState('');
-  const [clave, setClave] = useState('');
-  const [titulo, setTitulo] = useState('');
-  const [token, setToken] = useState('');
-  const [tareas, setTareas] = useState<Tarea[]>([]);
-  const [mensaje, setMensaje] = useState('');
-  const [ocupado, setOcupado] = useState(false);
-
-  async function ejecutar(accion: () => Promise<void>) {
-    setOcupado(true);
-    try {
-      await accion();
-    } catch (error) {
-      setMensaje(error instanceof Error ? error.message : 'Revisa la conexión con Express.');
-    } finally {
-      setOcupado(false);
-    }
-  }
-
-  async function probar() {
-    const datos = await solicitar('/db-check');
-    setMensaje('Supabase conectado. Usuarios registrados: ' + datos.users);
-  }
-
-  async function entrar() {
-    const sesion = await solicitar('/auth/login', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email: correo.trim(), password: clave }),
-    });
-    setToken(sesion.token);
-    setClave('');
-    const lista = await solicitar('/tasks', {
-      headers: { Authorization: 'Bearer ' + sesion.token },
-    });
-    setTareas(lista);
-    setMensaje('Sesión iniciada como ' + sesion.user.name + '.');
-  }
-
-  async function agregar() {
-    const tarea: Tarea = await solicitar('/tasks', {
-      method: 'POST',
-      headers: { Authorization: 'Bearer ' + token, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ title: titulo.trim(), priority: 'ordinary' }),
-    });
-    setTareas((anteriores) => [tarea, ...anteriores]);
-    setTitulo('');
-    setMensaje('Tarea guardada en Supabase.');
-  }
-
-  function salir() {
-    setToken('');
-    setTareas([]);
-    setTitulo('');
-    setMensaje('Sesión cerrada.');
-  }
-
-  return (
-    <ScrollView contentContainerStyle={estilos.pagina} keyboardShouldPersistTaps="handled">
-      <Text style={estilos.titulo}>Mis tareas</Text>
-      <Button title="Probar conexión" disabled={ocupado} onPress={() => ejecutar(probar)} />
-      {token ? (
-        <View style={estilos.grupo}>
-          <Text>Nueva tarea</Text>
-          <TextInput style={estilos.campo} value={titulo} onChangeText={setTitulo} />
-          <Button title="Guardar tarea" disabled={ocupado || !titulo.trim()}
-            onPress={() => ejecutar(agregar)} />
-          {tareas.map((tarea) => <Text key={tarea.id}>{tarea.title}</Text>)}
-          <Button title="Cerrar sesión" disabled={ocupado} onPress={salir} />
-        </View>
-      ) : (
-        <View style={estilos.grupo}>
-          <Text>Correo de prueba</Text>
-          <TextInput style={estilos.campo} value={correo} onChangeText={setCorreo}
-            autoCapitalize="none" autoCorrect={false} keyboardType="email-address" />
-          <Text>Contraseña</Text>
-          <TextInput style={estilos.campo} value={clave} onChangeText={setClave}
-            secureTextEntry autoCapitalize="none" />
-          <Button title="Iniciar sesión" disabled={ocupado || !correo.trim() || !clave}
-            onPress={() => ejecutar(entrar)} />
-        </View>
-      )}
-      <Text accessibilityLiveRegion="polite">{mensaje}</Text>
-    </ScrollView>
-  );
-}
-
-const estilos = StyleSheet.create({
-  pagina: { padding: 24, paddingTop: 64, gap: 18, backgroundColor: '#ffffff', flexGrow: 1 },
-  titulo: { fontSize: 30, fontWeight: '700', color: '#16392f' },
-  grupo: { gap: 10 },
-  campo: { padding: 10, borderColor: '#58776c', borderWidth: 1, borderRadius: 6 },
-});
