@@ -6,13 +6,13 @@ Abre la [aplicación compartida](https://sarcastic-api.onrender.com) desde el te
 
 | Integrante | Rama | Módulo |
 | --- | --- | --- |
-| Teran | `codex/teran` | Bienvenida, registro, sesión, navegación y conexión con Render |
-| Morales | `feat/morales` | Inicio, tareas y mentor SlothBot |
-| Mamani | `codex/mamani` | Agenda, eventos y sesiones de enfoque |
-| Aguilar | `codex/aguilar` | Rachas, días libres, comodines y roast semanal |
-| Alanoca | `codex/alanoca` | Social, retos, clasificación, amistades y publicaciones |
-| Lorena | `codex/lorena` | Alarmas QR, cámara, avisos locales e historial |
-| Nacho | `codex/nacho` | Perfil, preferencias, inventario, logros y notificaciones |
+| Teran | `teran` | Bienvenida, registro, sesión, navegación y conexión con Render |
+| Morales | `morales` | Inicio, tareas y mentor SlothBot |
+| Mamani | `mamani` | Agenda, eventos y sesiones de enfoque |
+| Aguilar | `aguilar` | Rachas, días libres, comodines y roast semanal |
+| Alanoca | `alanoca` | Social, retos, clasificación, amistades y publicaciones |
+| Lorena | `lorena` | Alarmas QR, cámara, avisos locales e historial |
+| Nacho | `nacho` | Perfil, preferencias, inventario, logros y notificaciones |
 
 Clona el repositorio, ejecuta `git fetch origin` y cambia a tu rama con `git switch <rama>`. Envía los cambios con `git push` y abre un pull request hacia `main`. Cada integrante necesita acceso de escritura al repositorio para subir sus propios cambios.
 
