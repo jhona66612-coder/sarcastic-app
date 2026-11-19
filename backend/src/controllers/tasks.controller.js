@@ -19,6 +19,10 @@ exports.list = async (req, res) => {
     params.push(req.query.deadline_before);
     where.push(`t.deadline <= $${params.length}`);
   }
+  if (req.query.deadline_on) {
+    params.push(req.query.deadline_on);
+    where.push(`t.deadline = $${params.length}::date`);
+  }
   const r = await query(
     `select t.*, c.name as category_name
        from tasks t left join task_categories c on c.id = t.category_id

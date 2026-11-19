@@ -18,6 +18,8 @@ Clona el repositorio, ejecuta `git fetch origin` y cambia a tu rama con `git swi
 
 ## Desarrollo móvil
 
+SlothBot ahora es una mascota animada con entrada por voz y texto. Puede crear, completar y reprogramar tareas, organizar eventos, iniciar enfoque y gestionar alarmas. Abre el botón flotante después de iniciar sesión. Consulta los ejemplos, las opciones de IA y los requisitos de compilación nativa en [la guía del asistente](docs/ASISTENTE.md).
+
 Usa Node 24.3 o superior de la serie 24. Desde `mobile`, ejecuta `npm ci` y `npm start`. Para abrir en navegador usa `npm run web`. El cliente usa el servicio compartido por defecto. Puedes cambiarlo con `EXPO_PUBLIC_API_URL`, como indica `mobile/.env.example`.
 
 El cliente móvil usa Expo SDK 58. En Android e iOS las alarmas pueden programar un aviso diario al permitir notificaciones en el dispositivo. La cámara permite escanear un QR temporal mostrado desde otro dispositivo con la misma cuenta. En web se puede mostrar el código o validarlo manualmente. El QR emitido por la aplicación vence en una hora y sirve para un uso. Las sanciones son parte del tema del diseño y la aplicación no realiza cargos monetarios.

@@ -1,6 +1,7 @@
 import { useCallback, useRef, useState } from "react";
 import { useFocusEffect } from "expo-router";
 import { useSession } from "./session";
+import { subscribeChanges } from "./changes";
 type Api = ReturnType<typeof useSession>["api"];
 export function useResource<T>(load: (api: Api) => Promise<T>) {
   const { api } = useSession();
@@ -21,7 +22,9 @@ export function useResource<T>(load: (api: Api) => Promise<T>) {
   useFocusEffect(
     useCallback(() => {
       void refresh();
+      const unsubscribe = subscribeChanges(() => void refresh());
       return () => {
+        unsubscribe();
         version.current++;
       };
     }, [refresh]),

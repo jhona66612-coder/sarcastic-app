@@ -6,6 +6,7 @@ router.use(require('./auth.routes'));
 
 // A partir de aquí TODAS las rutas exigen un JWT válido
 router.use(auth);
+router.use(require('./assistant.routes'));
 router.use(require('./users.routes'));
 router.use(require('./tasks.routes'));
 router.use(require('./calendar.routes'));

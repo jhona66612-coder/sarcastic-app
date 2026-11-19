@@ -45,7 +45,7 @@ exports.messages = async (req, res) => {
 
 // GET /ai/analyses
 exports.listAnalyses = async (req, res) => {
-  const r = await query('select * from ai_analyses where user_id = $1 order by analysis_date desc', [
+  const r = await query("select * from ai_analyses where user_id = $1 and analysis_type <> 'assistant_command' order by analysis_date desc", [
     req.user.id,
   ]);
   res.json(r.rows);

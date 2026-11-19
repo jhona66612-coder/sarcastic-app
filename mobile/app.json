@@ -34,8 +34,21 @@
         }
       ],
       "expo-secure-store",
-      ["expo-camera", {"cameraPermission": "Escanea el QR de tu alarma con la cámara.", "recordAudioAndroid": false}],
-      "expo-notifications"
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Escanea el QR de tu alarma con la cámara.",
+          "recordAudioAndroid": false
+        }
+      ],
+      "expo-notifications",
+      [
+        "expo-speech-recognition",
+        {
+          "microphonePermission": "Permite que SlothBot escuche tus instrucciones cuando pulses el micrófono.",
+          "speechRecognitionPermission": "Convierte tu voz en texto para organizar tus tareas con SlothBot."
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true,
